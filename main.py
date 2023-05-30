@@ -1,11 +1,6 @@
 import base64
-import os
-import re
-import time
 
 from github import Github
-
-import csv
 
 import json
 
@@ -37,6 +32,7 @@ def count_start(string, substring):
             count += 1
 
     return count
+
 
 def remove_comments(string):
     lines = string.splitlines()
@@ -118,4 +114,3 @@ for repo in repos:
         feature_data['example_keywords'] += count_start(f_string_minus_comments, "example:")
         feature_data['total_examples_tables'] += count_examples_tables(f_string_minus_comments)
     append_to_dataset(repo_info)
-
