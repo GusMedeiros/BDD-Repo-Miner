@@ -22,3 +22,5 @@ logs/
 *.pyc
 *.bak
 *.swp
+
+token.txt
