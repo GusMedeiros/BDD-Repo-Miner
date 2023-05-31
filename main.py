@@ -47,5 +47,5 @@ for repo in repos:
             print(f"ERROR: Github api limit reached. (retrying to mine repository {repo.full_name}: attempt {attempt})")
         except Exception:
             print(f"UNKNOWN ERROR when processing repository (retrying to mine repository {repo.full_name}: attempt {attempt})")
-
+            append_to_dataset(repo_info, "trash.json")
 
