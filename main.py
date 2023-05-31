@@ -15,25 +15,25 @@ time.sleep(1)
 for repo in repos:
     print(f"Mining repo: {repo.full_name}")
     for attempt in range(3):
-        try:
-            repo_info = {
-                'basic repo info': {
-                    'name': '',
-                    'languages': dict(),
-                    'license': '',
-                    # 'about':, about project section
-                    # 'summary':, chatgpt generated summary from readme and about section
+        repo_info = {
+            'basic repo info': {
+                'name': '',
+                'languages': dict(),
+                'license': '',
+                # 'about':, about project section
+                # 'summary':, chatgpt generated summary from readme and about section
 
-                },
-                'feature data': {
-                    'total_features': 0,
-                    'scenario_keywords': 0,
-                    'scenario_outline_keywords': 0,
-                    'examples_keywords': 0,
-                    'example_keywords': 0,
-                    'total_examples_tables': 0,
-                }
+            },
+            'feature data': {
+                'total_features': 0,
+                'scenario_keywords': 0,
+                'scenario_outline_keywords': 0,
+                'examples_keywords': 0,
+                'example_keywords': 0,
+                'total_examples_tables': 0,
             }
+        }
+        try:
             basic_repo_info = repo_info['basic repo info']
             basic_repo_info['name'] = repo.full_name  # not a request, no need to sleep
             basic_repo_info['languages'] = language_bytes_to_percentage(p_requests.get_repo_languages(repo, g))
