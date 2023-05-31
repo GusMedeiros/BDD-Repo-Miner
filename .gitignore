@@ -24,3 +24,6 @@ logs/
 *.swp
 
 token.txt
+
+data.json
+trash.json
