@@ -31,21 +31,31 @@ for repo in repos:
                 'examples_keywords': 0,
                 'example_keywords': 0,
                 'total_examples_tables': 0,
+            },
+            'github stats': {
+                
             }
         }
+        basic_repo_info = repo_info['basic repo info']
         try:
-            basic_repo_info = repo_info['basic repo info']
+            basic_repo_info['license'] = p_requests.get_repo_license(repo, g).license.spdx_id
+
+        except Exception as e:
+            print(f"Error getting repo's license. Will be empty instead")
+            print(e)
+        try:
             basic_repo_info['name'] = repo.full_name  # not a request, no need to sleep
             basic_repo_info['languages'] = language_bytes_to_percentage(p_requests.get_repo_languages(repo, g))
-            basic_repo_info['license'] = p_requests.get_repo_license(repo, g).license.spdx_id
             features = p_requests.get_repo_features(f'extension:feature repo:{repo.full_name}', g)
             mine_feature_data(features, repo_info['feature data'], g)
             append_to_dataset(repo_info)
+
             break
         except github.RateLimitExceededException:
             p_requests.check_limit(github=g)
             print(f"ERROR: Github api limit reached. (retrying to mine repository {repo.full_name}: attempt {attempt})")
-        except Exception:
-            print(f"UNKNOWN ERROR when processing repository (retrying to mine repository {repo.full_name}: attempt {attempt})")
+        except Exception as e:
+            print(e)
+            print(f"ERROR when processing repository (retrying to mine repository {repo.full_name}: attempt {attempt})")
             append_to_dataset(repo_info, "trash.json")
 
