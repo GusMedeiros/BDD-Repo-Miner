@@ -20,8 +20,6 @@ logs/
 .DS_Store
 *.sqlite3
 *.pyc
-*.bak
-*.swp
 
 token.txt
 

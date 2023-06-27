@@ -66,3 +66,15 @@ def search_repositories(query: str, github: Github):
 @_ratelimit
 def check_limit(null=None, github: Github = None):
     return
+
+
+@_ratelimit
+@_sleep
+def get_repo_commit_count(repo: Repository, github: Github):
+    return repo.get_commits().totalCount
+
+
+@_ratelimit
+@_sleep
+def get_repo_pull_request_count(repo: Repository, github: Github):
+    return repo.get_pulls().totalCount

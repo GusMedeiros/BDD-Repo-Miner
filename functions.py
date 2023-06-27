@@ -19,7 +19,8 @@ def mine_feature_data(features, feature_data, github: Github):
         feature_data['total_examples_tables'] += count_examples_tables(f_string_minus_comments)
     return
 
-def append_to_dataset(data_dict, file_name = "data.json"):
+
+def append_to_dataset(data_dict, file_name="data.json"):
     # Load existing data from the file
     try:
         with open(file_name, 'r') as file:
