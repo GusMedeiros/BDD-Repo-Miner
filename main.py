@@ -7,7 +7,11 @@ from functions import language_bytes_to_percentage, get_first_line, \
 token = get_first_line("token.txt")
 g = Github(token)
 query = 'filename:*.feature'
-repos = p_requests.search_repositories("BDD", g)
+# searches for repositories based on BDD keyword
+# repos = p_requests.search_repositories("BDD", g)
+
+# searches on orgs repositories
+repos = p_requests.search_repositories("repo:iriusrisk/bdd-security fork:true", g)
 for repo in repos:
     print(f"Mining repo: {repo.full_name}")
     for attempt in range(3):
@@ -41,18 +45,28 @@ for repo in repos:
                 'total_examples_tables': 0,
             },
             'github stats': {
+                'commits': 0,
                 'watchers': 0,
                 'forks': 0,
                 'stars': 0,
                 'issues': 0,
                 'pull_requests': 0,
+                'branches': 0,
+                'contributors': 0,
+                'bugs': 0,
 
+            },
+            "interval statistics": {
+                "average_interval_between_commits_seconds": 0,
+                "average_interval_between_issue_closings_seconds": 0,
             }
         }
         basic_repo_info = repo_info['basic repo info']
         github_stats = repo_info['github stats']
         created_at = basic_repo_info['created_at']
         pushed_at = basic_repo_info['pushed_at']
+        interval_statistics = repo_info['interval statistics']
+
         try:
             basic_repo_info['license'] = p_requests.get_repo_license(repo, g).license.spdx_id
             basic_repo_info['name'] = repo.full_name
@@ -67,11 +81,18 @@ for repo in repos:
             pushed_at['month'] = repo.pushed_at.month
             pushed_at['year'] = repo.pushed_at.year
 
+            interval_statistics['average_interval_between_commits_seconds'] = p_requests.get_average_commit_interval(repo, g)
+            interval_statistics['average_interval_between_issue_closings_seconds'] = p_requests.get_average_issue_closing_time(repo, g)
+
+            github_stats['commits'] = p_requests.get_repo_commit_count(repo, g)
+            github_stats['branches'] = p_requests.get_branches(repo, g).totalCount
             github_stats['watchers'] = repo.subscribers_count
             github_stats['forks'] = repo.forks_count
             github_stats['stars'] = repo.stargazers_count
             github_stats['issues'] = repo.open_issues
             github_stats['pull_requests'] = p_requests.get_repo_pull_request_count(repo, github=g)
+            github_stats['contributors'] = p_requests.get_contributor_count(repo, g)
+            github_stats['bugs'] = p_requests.get_bug_count(repo, g)
             # open_issues by default counts pull_requests, so we subtract to reflect the actual
             # issues count on the GitHub website
             github_stats['issues'] = repo.open_issues - github_stats['pull_requests']
@@ -87,5 +108,6 @@ for repo in repos:
             print(f"ERROR: Github api limit reached. (retrying to mine repository {repo.full_name}: attempt {attempt})")
         except Exception as e:
             print(e)
+            raise(e)
             print(f"ERROR when processing repository (retrying to mine repository {repo.full_name}: attempt {attempt})")
             append_to_dataset(repo_info, "trash.json")

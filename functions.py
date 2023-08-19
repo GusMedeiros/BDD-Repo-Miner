@@ -25,6 +25,7 @@ def append_to_dataset(data_dict, file_name="data.json"):
     try:
         with open(file_name, 'r') as file:
             existing_data = json.load(file)
+            file.close()
     except FileNotFoundError:
         existing_data = []
 
@@ -34,7 +35,7 @@ def append_to_dataset(data_dict, file_name="data.json"):
     # Write the updated data back to the file
     with open(file_name, 'w') as file:
         json.dump(existing_data, file, indent=4)
-
+    file.close()
 
 def count_start(string, substrings: list):
     cont = 0
