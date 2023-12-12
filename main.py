@@ -4,15 +4,25 @@ import p_requests
 from functions import language_bytes_to_percentage, get_first_line, \
     mine_feature_data, append_to_dataset
 
+
+test = True
 token = get_first_line("token.txt")
 g = Github(token)
-query = 'filename:*.feature'
-# searches for repositories based on BDD keyword
-# repos = p_requests.search_repositories("BDD", g)
 
-# searches on orgs repositories
-repos = p_requests.search_repositories("repo:iriusrisk/bdd-security fork:true", g)
-for repo in repos:
+
+# gets every repo in the org
+org = g.get_organization('bbd-test-research')
+forks = org.get_repos()
+# forks = [g.get_repo("AutomationPanda/behavior-driven-python")]
+
+# filters out selected repos that aren't in the spreadsheet
+repos_to_exclude = ['Docker-Environments', 'BDD-Repo-Miner', 'Data-Mining']
+
+
+for repo in forks:
+    if repo.name in repos_to_exclude:
+        continue
+    repo = repo.parent
     print(f"Mining repo: {repo.full_name}")
     for attempt in range(3):
         repo_info = {
@@ -53,7 +63,11 @@ for repo in repos:
                 'pull_requests': 0,
                 'branches': 0,
                 'contributors': 0,
-                'bugs': 0,
+                'bugs': {
+                    'open': 0,
+                    'closed': 0,
+                    'average_closing_time_seconds': 0
+                },
 
             },
             "interval statistics": {
@@ -92,9 +106,13 @@ for repo in repos:
             github_stats['issues'] = repo.open_issues
             github_stats['pull_requests'] = p_requests.get_repo_pull_request_count(repo, github=g)
             github_stats['contributors'] = p_requests.get_contributor_count(repo, g)
-            github_stats['bugs'] = p_requests.get_bug_count(repo, g)
             # open_issues by default counts pull_requests, so we subtract to reflect the actual
             # issues count on the GitHub website
+            closed_bugs, open_bugs, average_closing_time = p_requests.get_bug_info(repo, g)
+            github_stats['bugs']['open'] = open_bugs
+            github_stats['bugs']['closed'] = closed_bugs
+            github_stats['bugs']['average_closing_time_seconds'] = average_closing_time
+
             github_stats['issues'] = repo.open_issues - github_stats['pull_requests']
             features = p_requests.get_repo_features(f'extension:feature repo:{repo.full_name}', g)
             mine_feature_data(features, repo_info['feature data'], g)
